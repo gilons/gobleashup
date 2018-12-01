@@ -26,12 +26,13 @@ const (
 
 //User struct
 type User struct {
-	UserName     string `json:"name"`
-	UserNickName string `json:"nickname"`
-	UserPhone    string `json:"phonenumber"`
-	UserID       string `json:"userid"`
-	UserPassword string `json:"password"`
-	UserSalt     string `json:"salt"`
+	UserFirstName string `json:"first_name"`
+	UserLastName  string `json:"last_name"`
+	UserNickName  string `json:"nickname"`
+	UserPhone     string `json:"phonenumber"`
+	UserID        string `json:"userid"`
+	UserPassword  string `json:"password"`
+	UserSalt      string `json:"salt"`
 }
 
 //ErrorMessage Struct
@@ -71,7 +72,8 @@ func InternalError(w *http.ResponseWriter, Response CreateUserResponse) {
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	UserInstance := User{}
 	Response := CreateUserResponse{}
-	UserInstance.UserName = r.FormValue("user_name")
+	UserInstance.UserFirstName = r.FormValue("first_name")
+	UserInstance.UserLastName = r.FormValue("last_name")
 	UserInstance.UserPhone = r.FormValue("phone_number")
 	UserInstance.UserPassword = r.FormValue("password")
 	UserInstance.UserNickName = r.FormValue("nick_name")
@@ -87,12 +89,13 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	UserInstance.UserID = strings.Replace(UserInstance.UserID, "-", "_", -1)
 	queryString := "INSERT INTO `USERS` SET " +
 		"`user_id` = \"" + UserInstance.UserID + "\"," +
-		" `user_name` = \"" + UserInstance.UserName + "\" ," +
+		" `first_name` = \"" + UserInstance.UserFirstName + "\" ," +
+		" `last_name` = \"" + UserInstance.UserLastName + "\" ," +
 		"`user_nickname` = \"" + UserInstance.UserNickName + "\" ," +
 		"`user_password` = \"" + passwordhash + "\" ," +
 		"`user_phone` = \"" + UserInstance.UserPhone + "\" ," +
 		"`user_salt` = \"" + salt + "\";"
-		fmt.Println(queryString)
+	fmt.Println(queryString)
 	result, err := db.Exec(queryString)
 	if err != nil {
 		mysqlErrorCode, errorMessage := GetMySQLErrorCode(err.Error())
@@ -130,7 +133,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		"`event_description` TEXT ," +
 		"`event_concernee` TEXT ," +
 		"`event_organisers` TEXT );"
-		fmt.Println(queryString)
+	fmt.Println(queryString)
 	result, err = db.Exec(queryString)
 	if err != nil {
 		InternalError(&w, Response)
@@ -202,13 +205,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		var temp1, temp2, temp3 string
 		sqlQuery = "select * from USERS where user_phone = " + loginUser.UserPhone
 		err = (*db).QueryRow(sqlQuery).Scan(&response.UserInfo.UserID, &response.UserInfo.UserPhone,
-			&response.UserInfo.UserNickName, &temp1, &temp2, &response.UserInfo.UserName,
+			&response.UserInfo.UserNickName, &temp1, &temp2,
+			&response.UserInfo.UserFirstName, &response.UserInfo.UserLastName,
 			&response.UserInfo.UserPassword, &temp3)
 		if err != nil {
 			fmt.Println(err)
 		}
-		sqlQuery = "select user_name from USERS where user_phone = " + loginUser.UserPhone
-		err = (*db).QueryRow(sqlQuery).Scan(&response.UserInfo.UserName)
+		sqlQuery = "select first_name from USERS where user_phone = " + loginUser.UserPhone
+		err = (*db).QueryRow(sqlQuery).Scan(&response.UserInfo.UserFirstName)
 		if err != nil {
 			fmt.Println(err)
 		}

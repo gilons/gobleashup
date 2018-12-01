@@ -35,7 +35,8 @@ func createUsersTable() {
 		"user_nickname varchar(32)," +
 		"user_status varchar(256)," +
 		"user_profile text," +
-		"user_name varchar(256)," +
+		"first_name varchar(256)," +
+		"last_name varchar(256)," +
 		"user_password text NOT NULL," +
 		"user_salt varchar(256) not null )"
 	result, err := (*db).Exec(sqlQuery)
